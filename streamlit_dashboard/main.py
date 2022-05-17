@@ -31,7 +31,7 @@ def load_data():
                      f"FROM measurements m "
                      f"JOIN sensors s "
                      f"ON s.id = m.sensor_id "
-                     f"WHERE m.measured_at >= NOW() - INTERVAL 1 DAY;", db)
+                     f"WHERE m.measured_at >= NOW() - INTERVAL 2 DAY;", db)
     db.commit()
     return df
 

@@ -28,17 +28,19 @@ class DBWriter(Thread):
 
     def retrieve_or_create_sensor_id(self, sensor_name):
         df = pd.read_sql(f"SELECT * FROM sensors", self.db)
-        if sensor_name in df["name"].values:
-            return df["id"][df["name"]==sensor_name].values[0]
-        else:
+        if len(df) == 0 or sensor_name not in df["name"].values:
             print(f"Creating new id for {sensor_name}")
-            new_id = df["id"].max()+1
+            new_id = df["id"].max() + 1
             datecreated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
             cursor = self.db.cursor()
             cursor.execute(f"INSERT INTO sensors VALUES ({new_id}, '{sensor_name}', '{datecreated}')")
             self.db.commit()
             cursor.close()
             return new_id
+        else:
+            return df["id"][df["name"]==sensor_name].values[0]
+
+
 
     def write_values_to_database(self, data):
         sensor_name, time_received, temperature, humidity = data
