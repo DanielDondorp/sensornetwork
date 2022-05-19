@@ -28,18 +28,25 @@ class DBWriter(Thread):
 
     def retrieve_or_create_sensor_id(self, sensor_name):
         df = pd.read_sql(f"SELECT * FROM sensors", self.db)
-        if len(df) == 0 or sensor_name not in df["name"].values:
-            print(f"Creating new id for {sensor_name}")
-            new_id = df["id"].max() + 1
-            datecreated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-            cursor = self.db.cursor()
-            cursor.execute(f"INSERT INTO sensors VALUES ({new_id}, '{sensor_name}', '{datecreated}')")
-            self.db.commit()
-            cursor.close()
-            return new_id
-        else:
-            return df["id"][df["name"]==sensor_name].values[0]
-
+        print(len(df))
+        try:
+            if len(df) == 0 or sensor_name not in df["name"].values:
+                print(f"Creating new id for {sensor_name}")
+                if len(df) == 0:
+                    new_id = 1
+                else:
+                    new_id = df["id"].max() + 1
+                datecreated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+                cursor = self.db.cursor()
+                cursor.execute(f"INSERT INTO sensors VALUES ({new_id}, '{sensor_name}', '{datecreated}')")
+                self.db.commit()
+                cursor.close()
+                return new_id
+            else:
+                return df["id"][df["name"]==sensor_name].values[0]
+        except Exception as e:
+            print(Exception)
+            traceback.print_exc(e)
 
 
     def write_values_to_database(self, data):
